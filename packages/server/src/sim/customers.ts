@@ -200,8 +200,7 @@ export function tickCustomers(save: GameSave, ctx: CustomerContext): Map<string,
       } else if (fiberTake > 0) {
         market.installQueue.fiber += Math.min(svc.freeFiberPorts, gap);
       } else if (svc.wireless) {
-        const subEquivMbps =
-          svc.freeWirelessMbps / Math.max(1, DEMAND.perSubMbps(consumerMix.avgSpeed));
+        const subEquivMbps = svc.freeWirelessMbps / Math.max(1, DEMAND.perSubMbps(consumerMix.avgSpeed));
         market.installQueue.wireless += Math.max(0, Math.min(gap, Math.floor(subEquivMbps)));
       }
     }

@@ -160,7 +160,9 @@ describe("API integration", () => {
       const afterStorm = await fetchJson<LoadGameResponse>(`/api/games/${gameId}`);
       const coAfter = afterStorm.body.state.sites.find((s) => s.id === co.id)!;
       if (coAfter.status === "failed") {
-        active = afterStorm.body.state.incidents.find((i) => i.status === "active" && i.affectedSites.includes(co.id));
+        active = afterStorm.body.state.incidents.find(
+          (i) => i.status === "active" && i.affectedSites.includes(co.id),
+        );
         break;
       }
       await new Promise((r) => setTimeout(r, 400)); // let the day advance so the RNG stream differs
