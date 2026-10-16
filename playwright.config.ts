@@ -1,7 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
 const PG_PORT = process.env.PG_PORT ?? "5433";
-const DB_URL = `postgres://heartland@127.0.0.1:${PG_PORT}/heartland_e2e`;
+const PG_PASS = process.env.PG_PASSWORD ?? "heartland";
+const DB_URL = `postgres://heartland:${PG_PASS}@127.0.0.1:${PG_PORT}/heartland_e2e`;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -25,6 +26,7 @@ export default defineConfig({
       HOST: "127.0.0.1",
       DATABASE_URL: DB_URL,
       PG_PORT,
+      PG_PASSWORD: PG_PASS,
     },
   },
   projects: [

@@ -69,11 +69,13 @@ jobs:
         run: npm run test:integration
         env:
           PG_PORT: "5432"
+          PG_PASSWORD: heartland
 
       - name: E2E tests (production build, desktop + mobile)
         run: npm run test:e2e
         env:
           PG_PORT: "5432"
+          PG_PASSWORD: heartland
 
   publish:
     name: Build & push container image

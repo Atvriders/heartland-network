@@ -5,10 +5,11 @@ import pg from "pg";
 import type { CreateGameResponse, GameSave, LoadGameResponse } from "@heartland/shared";
 
 const PG_PORT = process.env.PG_PORT ?? "5433";
+const PG_PASS = process.env.PG_PASSWORD ?? "heartland";
 const PORT = 8131;
 const BASE = `http://127.0.0.1:${PORT}`;
-const ADMIN_DB = `postgres://heartland@127.0.0.1:${PG_PORT}/postgres`;
-const TEST_DB = `postgres://heartland@127.0.0.1:${PG_PORT}/heartland_test`;
+const ADMIN_DB = `postgres://heartland:${PG_PASS}@127.0.0.1:${PG_PORT}/postgres`;
+const TEST_DB = `postgres://heartland:${PG_PASS}@127.0.0.1:${PG_PORT}/heartland_test`;
 
 let server: ChildProcess | null = null;
 
