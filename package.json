@@ -1,0 +1,39 @@
+{
+  "name": "heartland-network",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Heartland Network — a self-hosted broadband network building and management strategy game.",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run build -w @heartland/shared && npm run build -w @heartland/server && npm run build -w @heartland/client",
+    "typecheck": "npm run typecheck -w @heartland/shared && npm run typecheck -w @heartland/server && npm run typecheck -w @heartland/client",
+    "lint": "eslint packages --ext .ts,.tsx",
+    "format:check": "prettier --check \"packages/**/*.{ts,tsx,css,json,md}\"",
+    "format": "prettier --write \"packages/**/*.{ts,tsx,css,json,md}\"",
+    "test:unit": "cd packages/server && vitest run --config vitest.config.ts",
+    "test:integration": "cd packages/server && vitest run --config vitest.integration.config.ts",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:e2e": "playwright test",
+    "dev:server": "npm run dev -w @heartland/server",
+    "dev:client": "npm run dev -w @heartland/client"
+  },
+  "devDependencies": {
+    "@playwright/test": "~1.64.0",
+    "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "prettier": "^3.4.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
+  }
+}

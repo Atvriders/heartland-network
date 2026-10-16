@@ -1,0 +1,117 @@
+name: Release & publish container image
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    name: Tests & production build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: heartland
+          POSTGRES_PASSWORD: heartland
+          POSTGRES_DB: heartland
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U heartland"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends postgresql-client
+
+      - name: Create test databases
+        run: |
+          PGPASSWORD=heartland psql -h 127.0.0.1 -U heartland -d heartland -c "CREATE DATABASE heartland_test" || true
+          PGPASSWORD=heartland psql -h 127.0.0.1 -U heartland -d heartland -c "CREATE DATABASE heartland_e2e" || true
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Integration tests (real PostgreSQL + live server)
+        run: npm run test:integration
+        env:
+          PG_PORT: "5432"
+
+      - name: E2E tests (production build, desktop + mobile)
+        run: npm run test:e2e
+        env:
+          PG_PORT: "5432"
+
+  publish:
+    name: Build & push container image
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.event_name != 'workflow_dispatch' }}
+
+      - name: Build and push (linux/amd64 + linux/arm64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'workflow_dispatch' }}
+          # Manual runs build and verify the image without publishing it.
+          load: ${{ github.event_name == 'workflow_dispatch' }}
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

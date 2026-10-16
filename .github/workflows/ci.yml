@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests & build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: heartland
+          POSTGRES_PASSWORD: heartland
+          POSTGRES_DB: heartland
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U heartland"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Create test databases
+        run: |
+          PGPASSWORD=heartland psql -h 127.0.0.1 -U heartland -d heartland -c "CREATE DATABASE heartland_test" || true
+          PGPASSWORD=heartland psql -h 127.0.0.1 -U heartland -d heartland -c "CREATE DATABASE heartland_e2e" || true
+      - name: Type check
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Unit tests
+        run: npm run test:unit
+      - name: Integration tests
+        run: npm run test:integration
+        env:
+          PG_PORT: "5432"
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: E2E tests
+        run: npm run test:e2e
+        env:
+          PG_PORT: "5432"

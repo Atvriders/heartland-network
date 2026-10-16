@@ -1,0 +1,44 @@
+# Heartland Network — local development compose (builds from source)
+#   docker compose -f compose.dev.yml up --build
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: heartland
+      POSTGRES_PASSWORD: heartland
+      POSTGRES_DB: heartland
+    volumes:
+      - heartland_dev_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U heartland -d heartland"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    networks:
+      - heartland
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: heartland-network-dev
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://heartland:heartland@db:5432/heartland
+      HOST: 0.0.0.0
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    networks:
+      - heartland
+
+networks:
+  heartland:
+    driver: bridge
+
+volumes:
+  heartland_dev_db:

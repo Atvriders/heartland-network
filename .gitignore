@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+packages/*/dist/
+packages/*/tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Test artifacts
+test-results/
+playwright-report/
+coverage/
+packages/server/test-results/
+
+# Environment and secrets
+.env
+.env.local
+*.secret
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Local postgres data (dev only)
+.pgdata/
+pgbin/
+pgdata/
