@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "npm run build -w @heartland/shared && npm run build -w @heartland/server && npm run build -w @heartland/client",
-    "typecheck": "npm run typecheck -w @heartland/shared && npm run typecheck -w @heartland/server && npm run typecheck -w @heartland/client",
+    "typecheck": "npm run build -w @heartland/shared && npm run typecheck -w @heartland/shared && npm run typecheck -w @heartland/server && npm run typecheck -w @heartland/client",
     "lint": "eslint packages --ext .ts,.tsx",
     "format:check": "prettier --check \"packages/**/*.{ts,tsx,css,json,md}\"",
     "format": "prettier --write \"packages/**/*.{ts,tsx,css,json,md}\"",
