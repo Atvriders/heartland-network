@@ -90,4 +90,6 @@ flowchart LR
 - PostgreSQL is on a private Docker network only; the host never exposes it.
 - Optional `ADMIN_TOKEN` gates import/delete endpoints for operators who
   expose the service beyond their LAN.
-- No embedded secrets; production credentials come from `.env`.
+- No embedded secrets; production defaults come from compose (database on a
+  private network, every setting overridable via environment variables, no
+  `.env` file required).

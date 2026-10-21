@@ -18,10 +18,11 @@ the game upgrades older save formats in place on load.
 ## Pinned vs latest
 
 The default `compose.yml` pins an immutable tag (`...:1.0.0`). Upgrade by
-changing `HEARTLAND_IMAGE` in `.env` to the new version tag and re-pulling:
+overriding `HEARTLAND_IMAGE` in your shell (or a `.env` file, if you use one)
+to the new version tag and re-pulling:
 
 ```bash
-HEARTLAND_IMAGE=ghcr.io/atvriders/heartland-network:1.1.0
+export HEARTLAND_IMAGE=ghcr.io/atvriders/heartland-network:1.1.0
 docker compose pull && docker compose up -d
 ```
 
@@ -39,7 +40,7 @@ upgrading.
 ## Rollback
 
 ```bash
-# In .env: HEARTLAND_IMAGE=<previous version>
+export HEARTLAND_IMAGE=ghcr.io/atvriders/heartland-network:1.0.0
 docker compose pull && docker compose up -d
 # Restore the pre-upgrade backup if the save format moved forward:
 docker compose exec -T db psql -U heartland -d heartland < backup.sql

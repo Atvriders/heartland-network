@@ -1,13 +1,17 @@
 # Heartland Network — production deployment
-# Usage: copy compose.yml + .env.example, create .env, then
-#   docker compose pull && docker compose up -d
+# Zero-config: `docker compose pull && docker compose up -d` is all you need.
+# No .env file is required — every setting has a safe default.
+# Optional overrides (export in your shell before `docker compose up`, or use a
+# .env file if you prefer):
+#   HEARTLAND_PORT, HEARTLAND_IMAGE, POSTGRES_USER, POSTGRES_PASSWORD,
+#   POSTGRES_DB, TICK_MS, MAX_GAMES, ADMIN_TOKEN
 services:
   db:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-heartland}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required — set it in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-heartland}
       POSTGRES_DB: ${POSTGRES_DB:-heartland}
     volumes:
       - heartland_db:/var/lib/postgresql/data
@@ -27,7 +31,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-heartland}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-heartland}
+      DATABASE_URL: postgres://${POSTGRES_USER:-heartland}:${POSTGRES_PASSWORD:-heartland}@db:5432/${POSTGRES_DB:-heartland}
       HOST: 0.0.0.0
       PORT: 8080
       TICK_MS: ${TICK_MS:-1000}

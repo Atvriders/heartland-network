@@ -31,19 +31,23 @@ own server; the map is procedurally generated and needs no external services.
 
 ## Quick start (production, via Docker)
 
+No `.env` file required — the compose file ships safe defaults and the
+database is never exposed to the host.
+
 ```bash
-# 1. Get the deployment files
+# 1. Get the compose file
 mkdir heartland-network && cd heartland-network
-curl -LO https://raw.githubusercontent.com/Atvriders/heartland-network/v1.0.0/compose.yml
-curl -LO https://raw.githubusercontent.com/Atvriders/heartland-network/v1.0.0/.env.example
-cp .env.example .env
-# 2. Edit .env — set a strong POSTGRES_PASSWORD
-nano .env
-# 3. Launch
+curl -LO https://raw.githubusercontent.com/Atvriders/heartland-network/main/compose.yml
+# 2. Launch
 docker compose pull
 docker compose up -d
-# 4. Open http://<docker-host-ip>:8080
+# 3. Open http://<docker-host-ip>:8080
 ```
+
+Optional: to use your own database password (or any other setting), export it
+in your shell before `docker compose up -d`, e.g.
+`export POSTGRES_PASSWORD='a-long-random-value'`. A `.env` file also works but
+is never required.
 
 Health: `http://<host>:8080/api/health`
 

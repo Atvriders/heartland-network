@@ -12,15 +12,14 @@ Container Registry, deployed with Docker Compose beside PostgreSQL 17.
 
 ## Standard installation
 
+No `.env` file is required — the compose file ships safe defaults (see
+“What the compose file provides” below).
+
 ```bash
 mkdir heartland-network && cd heartland-network
 
-# Download the release files (no need to clone the source repository):
-curl -LO https://raw.githubusercontent.com/Atvriders/heartland-network/v1.0.0/compose.yml
-curl -LO https://raw.githubusercontent.com/Atvriders/heartland-network/v1.0.0/.env.example
-
-cp .env.example .env
-# REQUIRED: set a strong POSTGRES_PASSWORD in .env
+# Download the compose file (no need to clone the source repository):
+curl -LO https://raw.githubusercontent.com/Atvriders/heartland-network/main/compose.yml
 ```
 
 Then start:
@@ -48,12 +47,19 @@ Open `http://<docker-host-ip>:8080` in a browser on your network and click
 
 ## Configuration (environment variables)
 
-All settings come from `.env`:
+Every setting has a default and is entirely optional. To override one,
+export it in your shell before `docker compose up -d` (a `.env` file also
+works, but is never required):
+
+```bash
+export POSTGRES_PASSWORD='a-long-random-value'   # example override
+docker compose up -d
+```
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `POSTGRES_USER` | `heartland` | Database user |
-| `POSTGRES_PASSWORD` | *(required)* | Database password — set a strong value |
+| `POSTGRES_PASSWORD` | `heartland` | Database password — only used on first database initialization; safe by default because PostgreSQL is never published to the host |
 | `POSTGRES_DB` | `heartland` | Database name |
 | `HEARTLAND_PORT` | `8080` | Host port for the game UI/API |
 | `HEARTLAND_IMAGE` | `ghcr.io/atvriders/heartland-network:1.0.0` | Image override |
@@ -67,12 +73,12 @@ The default pins the immutable `1.0.0` tag so upgrades are deliberate. To
 track releases automatically instead:
 
 ```bash
-# In .env:
-HEARTLAND_IMAGE=ghcr.io/atvriders/heartland-network:latest
+export HEARTLAND_IMAGE=ghcr.io/atvriders/heartland-network:latest
+docker compose pull && docker compose up -d
 ```
 
-then `docker compose pull && docker compose up -d`. Be aware `latest` moves
-with every release — see UPGRADE.md for the recommended procedure.
+Be aware `latest` moves with every release — see UPGRADE.md for the
+recommended procedure.
 
 ## Local-network access
 
@@ -101,8 +107,13 @@ Any reverse proxy works; the game itself needs no changes.
 
 ## Secrets hygiene
 
-- `POSTGRES_PASSWORD` lives only in `.env` on the Docker host. `.env` is
-  git-ignored in the repository and never baked into the image.
+- The database runs on a private Docker network only; no PostgreSQL port is
+  ever published to the host, so the default credentials are safe for
+  LAN-only use.
+- To use your own password, `export POSTGRES_PASSWORD='...'` before the
+  **first** `docker compose up -d` (the password is applied when the database
+  volume is initialized; changing it later requires `ALTER ROLE` inside the
+  container).
 - If you expose the app beyond your LAN, set `ADMIN_TOKEN` and use the
   `X-Admin-Token` header for import/delete endpoints.
 

@@ -33,7 +33,9 @@
 - [x] 25. Normal gameplay does not depend on public map-tile services
   (procedural map; no external requests).
 - [x] 26. No placeholder credentials or development-only bypasses
-  (production uses `.env`; storm drills are an intentional training feature).
+  (production needs no `.env` file — compose ships safe defaults and the
+  database is never exposed to the host; storm drills are an intentional
+  training feature).
 - [x] 27. No critical TODO, mock implementation, empty handler, or fake
   response remains (verified by review; lint enforces no unused code).
 
