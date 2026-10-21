@@ -458,7 +458,8 @@ select {
   box-shadow: var(--shadow-1);
   font-size: 13px;
   animation: slidein 200ms ease;
-  pointer-events: auto;
+  /* Toasts must never intercept map clicks — they stack over the play area. */
+  pointer-events: none;
 }
 .toast.warning {
   border-left-color: var(--warn);

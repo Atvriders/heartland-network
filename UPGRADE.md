@@ -17,7 +17,7 @@ the game upgrades older save formats in place on load.
 
 ## Pinned vs latest
 
-The default `compose.yml` pins an immutable tag (`...:1.0.0`). Upgrade by
+The default `compose.yml` pins an immutable tag (`...:1.0.1`). Upgrade by
 overriding `HEARTLAND_IMAGE` in your shell (or a `.env` file, if you use one)
 to the new version tag and re-pulling:
 
