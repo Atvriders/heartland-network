@@ -37,7 +37,7 @@ Open `http://<docker-host-ip>:8080` in a browser on your network and click
 
 | Concern | Detail |
 | --- | --- |
-| Image | `ghcr.io/atvriders/heartland-network:1.0.1` (immutable, pinned default) |
+| Image | `ghcr.io/atvriders/heartland-network:1.0.2` (immutable, pinned default) |
 | Database | `postgres:17-alpine`, persistent named volume `heartland_db` |
 | Network | private bridge network; PostgreSQL is never exposed to the host |
 | Restart | `unless-stopped` on both services |
@@ -62,14 +62,14 @@ docker compose up -d
 | `POSTGRES_PASSWORD` | `heartland` | Database password — only used on first database initialization; safe by default because PostgreSQL is never published to the host |
 | `POSTGRES_DB` | `heartland` | Database name |
 | `HEARTLAND_PORT` | `8080` | Host port for the game UI/API |
-| `HEARTLAND_IMAGE` | `ghcr.io/atvriders/heartland-network:1.0.1` | Image override |
+| `HEARTLAND_IMAGE` | `ghcr.io/atvriders/heartland-network:1.0.2` | Image override |
 | `TICK_MS` | `1000` | Milliseconds per game day at 1× speed |
 | `MAX_GAMES` | `12` | Maximum number of saves |
 | `ADMIN_TOKEN` | *(empty)* | Optional shared secret for admin-only endpoints |
 
 ### Switching to the latest tag
 
-The default pins the immutable `1.0.1` tag so upgrades are deliberate. To
+The default pins the immutable `1.0.2` tag so upgrades are deliberate. To
 track releases automatically instead:
 
 ```bash
@@ -121,7 +121,7 @@ Any reverse proxy works; the game itself needs no changes.
 
 ```bash
 curl http://localhost:8080/api/health
-# {"ok":true,"service":"heartland-network","version":"1.0.1","db":"connected",...}
+# {"ok":true,"service":"heartland-network","version":"1.0.2","db":"connected",...}
 docker compose ps   # both services report (healthy)
 ```
 

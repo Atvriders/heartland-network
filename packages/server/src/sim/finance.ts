@@ -150,10 +150,12 @@ export function rollMonth(save: GameSave): void {
   save.finance.monthly.push({
     month: save.finance.monthly.length + 1,
     revenue: Math.round(m.revenue),
-    opex: Math.round(m.opex),
+    // Store cost fields as positive magnitudes. Ledger accumulation uses
+    // signed amounts: opex/interest negative, capex positive.
+    opex: Math.round(-m.opex),
     capex: Math.round(m.capex),
-    interest: Math.round(m.interest),
-    net: Math.round(m.revenue - m.opex - m.capex - m.interest),
+    interest: Math.round(-m.interest),
+    net: Math.round(m.revenue + m.opex - m.capex + m.interest),
     subs,
     arpu: Math.round(arpu),
     cashEnd: Math.round(save.finance.cash),

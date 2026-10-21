@@ -75,7 +75,13 @@ describe("engine: core build-and-serve workflow", () => {
     for (let i = 0; i < 30; i++) engine.tick();
     expect(save.meta.gameDay).toBe(30);
     expect(save.finance.monthly.length).toBe(1);
-    expect(save.finance.monthly[0]!.cashEnd).toBeCloseTo(save.finance.cash, -2);
+    const row = save.finance.monthly[0]!;
+    expect(row.cashEnd).toBeCloseTo(save.finance.cash, -2);
+    // Cost fields are positive magnitudes; net is revenue minus costs.
+    expect(row.opex).toBeGreaterThan(0);
+    expect(row.capex).toBeGreaterThanOrEqual(0);
+    expect(row.interest).toBeGreaterThanOrEqual(0);
+    expect(row.net).toBeCloseTo(row.revenue - row.opex - row.capex - row.interest, 0);
   });
 });
 

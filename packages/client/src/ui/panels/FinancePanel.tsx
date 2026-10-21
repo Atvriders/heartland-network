@@ -1,7 +1,7 @@
 /** Finance panel: KPIs, monthly chart, bonds, ledger. */
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { BONDS } from "@heartland/shared";
+import { BONDS, type MonthlyPnL } from "@heartland/shared";
 import { useSnapshot, useStore } from "../../game/store.js";
 import { EmptyState, Kpi, Tabs } from "../components.js";
 import { fmtMoney } from "../../game/format.js";
@@ -178,13 +178,19 @@ function MonthlyChart(): ReactNode {
   }
   const W = 330;
   const H = 150;
-  const maxVal = Math.max(1, ...rows.map((r) => Math.max(r.revenue, r.opex)));
+  // Cost fields are positive magnitudes in current saves; `abs()` also keeps
+  // legacy saves (which stored negative costs) rendering correctly.
+  const opex = (r: MonthlyPnL) => Math.abs(r.opex);
+  const capex = (r: MonthlyPnL) => Math.abs(r.capex);
+  const interest = (r: MonthlyPnL) => Math.abs(r.interest);
+  const netOf = (r: MonthlyPnL) => r.revenue - opex(r) - capex(r) - interest(r);
+  const maxVal = Math.max(1, ...rows.map((r) => Math.max(r.revenue, opex(r), capex(r), interest(r))));
   const bw = W / rows.length;
-  const bar = (v: number) => (v / maxVal) * (H - 30);
+  const bar = (v: number) => (Math.max(0, v) / maxVal) * (H - 30);
   const line = rows
     .map((r, i) => {
       const x = i * bw + bw / 2;
-      const y = H - 8 - (Math.max(-maxVal, Math.min(maxVal, r.net)) / maxVal) * (H - 34);
+      const y = H - 8 - (Math.max(-maxVal, Math.min(maxVal, netOf(r))) / maxVal) * (H - 34);
       return `${i === 0 ? "M" : "L"}${x},${y}`;
     })
     .join(" ");
@@ -202,9 +208,9 @@ function MonthlyChart(): ReactNode {
           />
           <rect
             x={i * bw + bw * 0.42}
-            y={H - 8 - bar(r.opex)}
+            y={H - 8 - bar(opex(r))}
             width={bw * 0.35}
-            height={bar(r.opex)}
+            height={bar(opex(r))}
             fill="#b98a3c"
             rx={1.5}
           />
